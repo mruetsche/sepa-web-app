@@ -1,0 +1,16 @@
+{
+    "name": "sepa/webapp",
+    "description": "SEPA Transfer Management WebApp",
+    "type": "project",
+    "require": {
+        "php": ">=7.4",
+        "tecnickcom/tcpdf": "^6.6"
+    },
+    "config": {
+        "vendor-dir": "vendor",
+        "optimize-autoloader": true
+    },
+    "autoload": {
+        "files": ["config/config.php", "includes/auth.php"]
+    }
+}
