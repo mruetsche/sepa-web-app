@@ -4,7 +4,7 @@ define('DB_FILE', __DIR__ . '/../database/sepa_manager.db');
 
 // Application settings
 define('APP_NAME', 'SEPA Überweisungsmanager');
-define('APP_VERSION', '1.0.1');
+define('APP_VERSION', '1.1.0');
 
 // Dynamically detect base URL
 $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
@@ -81,6 +81,23 @@ function initDatabase($db) {
         )
     ");
     
+    // Senders table (Absender/eigene Bankkonten)
+    $db->exec("
+        CREATE TABLE IF NOT EXISTS senders (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            name TEXT NOT NULL,
+            city TEXT,
+            iban TEXT NOT NULL,
+            bic TEXT NOT NULL,
+            bank_name TEXT,
+            is_default BOOLEAN DEFAULT 0,
+            color TEXT DEFAULT '#004494',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        )
+    ");
+    
     // Transfers table
     $db->exec("
         CREATE TABLE IF NOT EXISTS transfers (
@@ -108,6 +125,7 @@ function initDatabase($db) {
     // Create indexes
     $db->exec("CREATE INDEX IF NOT EXISTS idx_transfers_user ON transfers(user_id)");
     $db->exec("CREATE INDEX IF NOT EXISTS idx_addresses_user ON addresses(user_id)");
+    $db->exec("CREATE INDEX IF NOT EXISTS idx_senders_user ON senders(user_id)");
     
     // Create default admin user if no users exist
     $stmt = $db->query("SELECT COUNT(*) as count FROM users");

@@ -67,7 +67,7 @@ body {
 
 /* Fieldset styling */
 fieldset {
-    background-color: #fff;
+    background-color: #dbe7ec;
 }
 
 fieldset legend {
@@ -145,6 +145,81 @@ fieldset legend {
     .no-print {
         display: none !important;
     }
+}
+
+/* Sender Cards (Absender/eigene Bankkonten) */
+.sender-card {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 20px;
+    background: white;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.sender-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.sender-card .default-badge {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: #28a745;
+    color: white;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.sender-details {
+    background: #f8f9fa;
+    padding: 12px;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+.iban-display {
+    font-family: 'Courier New', monospace;
+    letter-spacing: 1px;
+    font-size: 1.05rem;
+}
+
+/* Farb-Auswahl für Bankkonten */
+.color-picker-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 10px 0;
+}
+
+.color-option {
+    cursor: pointer;
+}
+
+.color-option input {
+    display: none;
+}
+
+.color-swatch {
+    display: block;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    transition: all 0.2s;
+}
+
+.color-option input:checked + .color-swatch {
+    border-color: #333;
+    transform: scale(1.2);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.color-swatch:hover {
+    transform: scale(1.1);
 }
 
 /* Table styles */

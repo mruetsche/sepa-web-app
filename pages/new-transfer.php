@@ -10,6 +10,20 @@ $user_id = $_SESSION['user_id'];
 $stmt = $db->prepare("SELECT * FROM addresses WHERE user_id = ? ORDER BY is_favorite DESC, name ASC");
 $stmt->execute([$user_id]);
 $addresses = $stmt->fetchAll();
+
+// Load saved senders (own bank accounts)
+$stmt = $db->prepare("SELECT * FROM senders WHERE user_id = ? ORDER BY is_default DESC, name ASC");
+$stmt->execute([$user_id]);
+$senders = $stmt->fetchAll();
+
+// Get default sender
+$defaultSender = null;
+foreach ($senders as $sender) {
+    if ($sender['is_default']) {
+        $defaultSender = $sender;
+        break;
+    }
+}
 ?>
 
 <div class="row">
@@ -24,15 +38,68 @@ $addresses = $stmt->fetchAll();
                     <fieldset class="border rounded p-3 mb-4">
                         <legend class="w-auto px-2"><small>Absender (Kontoinhaber)</small></legend>
                         
+                        <?php if (count($senders) > 0): ?>
+                        <!-- Schnellauswahl aus gespeicherten Konten -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-university"></i> Aus meinen Bankkonten wählen:
+                            </label>
+                            <div class="sender-quick-select">
+                                <?php foreach ($senders as $index => $sender): ?>
+                                <button type="button" 
+                                        class="sender-select-btn <?php echo $sender['is_default'] ? 'active' : ''; ?>" 
+                                        data-sender-id="<?php echo $sender['id']; ?>"
+                                        data-name="<?php echo htmlspecialchars($sender['name']); ?>"
+                                        data-city="<?php echo htmlspecialchars($sender['city'] ?? ''); ?>"
+                                        data-iban="<?php echo htmlspecialchars($sender['iban']); ?>"
+                                        data-bic="<?php echo htmlspecialchars($sender['bic']); ?>"
+                                        data-bank="<?php echo htmlspecialchars($sender['bank_name'] ?? ''); ?>"
+                                        style="border-left: 5px solid <?php echo $sender['color'] ?? '#004494'; ?>">
+                                    <span class="sender-btn-name"><?php echo htmlspecialchars($sender['name']); ?></span>
+                                    <span class="sender-btn-iban"><?php 
+                                        $iban = $sender['iban'];
+                                        echo substr($iban, 0, 4) . ' •••• ' . substr($iban, -4); 
+                                    ?></span>
+                                    <?php if ($sender['is_default']): ?>
+                                    <span class="sender-btn-badge">Standard</span>
+                                    <?php endif; ?>
+                                </button>
+                                <?php endforeach; ?>
+                                
+                                <button type="button" class="sender-select-btn sender-manual-btn" data-sender-id="manual">
+                                    <span class="sender-btn-name"><i class="fas fa-edit"></i> Manuell eingeben</span>
+                                    <span class="sender-btn-iban">Eigene Daten eintragen</span>
+                                </button>
+                            </div>
+                            
+                            <div class="text-end mt-2">
+                                <a href="#" onclick="loadPage('senders'); return false;" class="small">
+                                    <i class="fas fa-plus-circle"></i> Weiteres Bankkonto hinzufügen
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <hr>
+                        <?php else: ?>
+                        <div class="alert alert-info mb-3">
+                            <i class="fas fa-lightbulb"></i> 
+                            <strong>Tipp:</strong> Speichern Sie Ihre Bankkonten unter 
+                            <a href="#" onclick="loadPage('senders'); return false;">Meine Bankkonten</a>, 
+                            um sie hier schnell auswählen zu können!
+                        </div>
+                        <?php endif; ?>
+                        
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label for="sender_name" class="form-label">Name, Vorname/Firma <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="sender_name" name="sender_name" maxlength="27" required>
+                                <input type="text" class="form-control" id="sender_name" name="sender_name" maxlength="27" required
+                                       value="<?php echo $defaultSender ? htmlspecialchars($defaultSender['name']) : ''; ?>">
                                 <small class="text-muted">Max. 27 Zeichen</small>
                             </div>
                             <div class="col-md-6">
                                 <label for="sender_city" class="form-label">Ort</label>
-                                <input type="text" class="form-control" id="sender_city" name="sender_city" maxlength="27">
+                                <input type="text" class="form-control" id="sender_city" name="sender_city" maxlength="27"
+                                       value="<?php echo $defaultSender ? htmlspecialchars($defaultSender['city'] ?? '') : ''; ?>">
                             </div>
                         </div>
                         
@@ -40,18 +107,21 @@ $addresses = $stmt->fetchAll();
                             <div class="col-md-6">
                                 <label for="sender_iban" class="form-label">IBAN <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control iban-input" id="sender_iban" name="sender_iban" 
-                                       placeholder="DE00 0000 0000 0000 0000 00" maxlength="34" required>
+                                       placeholder="DE00 0000 0000 0000 0000 00" maxlength="34" required
+                                       value="<?php echo $defaultSender ? implode(' ', str_split($defaultSender['iban'], 4)) : ''; ?>">
                             </div>
                             <div class="col-md-6">
                                 <label for="sender_bic" class="form-label">BIC <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control bic-input" id="sender_bic" name="sender_bic" 
-                                       placeholder="XXXXXXXX" maxlength="11" required>
+                                       placeholder="XXXXXXXX" maxlength="11" required
+                                       value="<?php echo $defaultSender ? htmlspecialchars($defaultSender['bic']) : ''; ?>">
                             </div>
                         </div>
                         
                         <div class="mb-3">
                             <label for="sender_bank" class="form-label">Name und Sitz des Kreditinstituts</label>
-                            <input type="text" class="form-control" id="sender_bank" name="sender_bank">
+                            <input type="text" class="form-control" id="sender_bank" name="sender_bank"
+                                   value="<?php echo $defaultSender ? htmlspecialchars($defaultSender['bank_name'] ?? '') : ''; ?>">
                         </div>
                     </fieldset>
                     
@@ -196,9 +266,114 @@ $addresses = $stmt->fetchAll();
     </div>
 </div>
 
+<!-- Styles für Absender-Auswahl -->
+<style>
+.sender-quick-select {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.sender-select-btn {
+    flex: 1 1 calc(50% - 10px);
+    min-width: 200px;
+    padding: 12px 15px;
+    background: #f8f9fa;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.sender-select-btn:hover {
+    background: #e9ecef;
+    border-color: #adb5bd;
+}
+
+.sender-select-btn.active {
+    background: #e3f2fd;
+    border-color: #2196f3;
+    box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
+}
+
+.sender-select-btn .sender-btn-name {
+    display: block;
+    font-weight: 600;
+    font-size: 1rem;
+    color: #333;
+}
+
+.sender-select-btn .sender-btn-iban {
+    display: block;
+    font-size: 0.85rem;
+    color: #666;
+    font-family: 'Courier New', monospace;
+}
+
+.sender-select-btn .sender-btn-badge {
+    position: absolute;
+    top: 5px;
+    right: 8px;
+    background: #28a745;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.sender-manual-btn {
+    background: #fff3cd !important;
+    border-color: #ffc107 !important;
+}
+
+.sender-manual-btn:hover {
+    background: #ffecb5 !important;
+}
+
+.sender-manual-btn.active {
+    background: #fff3cd !important;
+    border-color: #ff9800 !important;
+    box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3) !important;
+}
+</style>
+
 <script>
 // Initialize form
 $(document).ready(function() {
+    // Absender-Auswahl Handler
+    $('.sender-select-btn').on('click', function() {
+        // Alle Buttons deaktivieren
+        $('.sender-select-btn').removeClass('active');
+        // Aktuellen Button aktivieren
+        $(this).addClass('active');
+        
+        const senderId = $(this).data('sender-id');
+        
+        if (senderId === 'manual') {
+            // Manuelle Eingabe - Felder leeren
+            $('#sender_name').val('').prop('readonly', false);
+            $('#sender_city').val('').prop('readonly', false);
+            $('#sender_iban').val('').removeClass('is-valid is-invalid').prop('readonly', false);
+            $('#sender_bic').val('').prop('readonly', false);
+            $('#sender_bank').val('').prop('readonly', false);
+        } else {
+            // Gespeichertes Konto auswählen
+            const $btn = $(this);
+            const iban = $btn.data('iban');
+            const formattedIban = iban.match(/.{1,4}/g).join(' ');
+            
+            $('#sender_name').val($btn.data('name'));
+            $('#sender_city').val($btn.data('city'));
+            $('#sender_iban').val(formattedIban).addClass('is-valid');
+            $('#sender_bic').val($btn.data('bic'));
+            $('#sender_bank').val($btn.data('bank'));
+        }
+    });
+    
     // Format IBAN input
     $('.iban-input').on('input', function() {
         let value = $(this).val().replace(/\s/g, '').toUpperCase();
@@ -246,6 +421,12 @@ $(document).ready(function() {
     
     // Load recent transfers
     loadRecentTransfers();
+    
+    // Standard-Konto als aktiv markieren (falls vorhanden)
+    const defaultBtn = $('.sender-select-btn[data-sender-id]:not([data-sender-id="manual"])').first();
+    if (defaultBtn.length && defaultBtn.find('.sender-btn-badge').length) {
+        defaultBtn.addClass('active');
+    }
 });
 
 function validateIBAN(iban) {

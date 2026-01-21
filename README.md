@@ -64,6 +64,7 @@ sepa_webapp/
 
 - ✅ **SEPA-Überweisungsformular** nach offiziellem Standard
 - ✅ **PDF-Generierung** zum Ausdrucken
+- ✅ **Meine Bankkonten** - Eigene Absender-Konten speichern und schnell auswählen
 - ✅ **Adressbuch** für häufige Empfänger
 - ✅ **IBAN-Validierung** mit Modulo-97 Check
 - ✅ **BIC-Validierung**
@@ -71,6 +72,18 @@ sepa_webapp/
 - ✅ **Responsive Design** (Bootstrap 5)
 - ✅ **Single Page Application** mit jQuery
 - ✅ **SQLite Datenbank** (keine MySQL erforderlich)
+- ✅ **Seniorenfreundliches Design** - Große Buttons und klare Beschriftungen
+
+## Neue Funktion: Meine Bankkonten
+
+Mit der neuen Funktion "Meine Bankkonten" können Sie Ihre eigenen Bankkonten 
+speichern, von denen Sie Überweisungen tätigen möchten:
+
+- **Mehrere Konten** verwalten (z.B. Girokonto, Sparkonto, Geschäftskonto)
+- **Standard-Konto** festlegen - wird automatisch vorausgewählt
+- **Farbige Kennzeichnung** - Leichtere Unterscheidung der Konten
+- **Schnellauswahl** im Überweisungsformular mit großen, klickbaren Buttons
+- **Manuelle Eingabe** weiterhin möglich
 
 ## Sicherheit
 
@@ -113,4 +126,4 @@ Diese Software wird "as is" zur Verfügung gestellt.
 
 ## Version
 
-1.0.0 - Erste stabile Version
+1.1.0 - Absender-Verwaltung (Meine Bankkonten) hinzugefügt

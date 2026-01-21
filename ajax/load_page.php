@@ -11,6 +11,7 @@ $allowed_pages = [
     'new-transfer' => '../pages/new-transfer.php',
     'transfers' => '../pages/transfers.php',
     'addresses' => '../pages/addresses.php',
+    'senders' => '../pages/senders.php',
     'profile' => '../pages/profile.php'
 ];
 
