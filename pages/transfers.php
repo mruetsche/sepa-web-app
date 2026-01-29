@@ -121,7 +121,7 @@ $transfers = $stmt->fetchAll();
 <script>
 function viewTransfer(id) {
     $.ajax({
-        url: '../ajax/get_transfer.php',
+        url: AJAX_URL + '/get_transfer.php',
         type: 'GET',
         data: { id: id },
         success: function(data) {
@@ -169,13 +169,13 @@ function viewTransfer(id) {
 }
 
 function downloadTransferPDF(id) {
-    window.location.href = '../ajax/download_transfer_pdf.php?id=' + id;
+    window.location.href = AJAX_URL + '/download_transfer_pdf.php?id=' + id;
 }
 
 function deleteTransfer(id) {
     confirmAction('Möchten Sie diese Überweisung wirklich löschen?', function() {
         $.ajax({
-            url: '../ajax/delete_transfer.php',
+            url: AJAX_URL + '/delete_transfer.php',
             type: 'POST',
             data: { id: id },
             success: function(response) {
@@ -191,7 +191,7 @@ function deleteTransfer(id) {
 }
 
 function exportTransfers() {
-    window.location.href = '../ajax/export_transfers.php';
+    window.location.href = AJAX_URL + '/export_transfers.php';
 }
 
 function printTransferDetails() {
